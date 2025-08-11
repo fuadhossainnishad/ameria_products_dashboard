@@ -6,4 +6,7 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
+console.log(config.serverUrl);
+
+
 export default axiosInstance;

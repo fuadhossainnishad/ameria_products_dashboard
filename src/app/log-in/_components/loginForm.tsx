@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import AuthServices from "@/services/auth/auth";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,15 +15,27 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;
+    console.log("Logging in with:", { email, password });
 
-    console.log("Email:", email);
-    console.log("Password:", password);
+    try {
+      const res = await AuthServices.login("/auth/login", { email, password });
+      console.log(res);
 
-    toast.success("Signed in successfully");
-    router.push("/dashboard");
+      if (!res.success) {
+        toast.error("wrong login credentials");
+      }
+      console.log("Email:", email);
+      console.log("Password:", password);
+      sessionStorage.setItem("token", res.data.token);
+      toast.success("Signed in successfully");
+      router.push("/dashboard");
+    } catch (error: unknown) {
+      toast.error("Login failed. Please try again.");
+      console.error("Login error:", error);
+    }
   };
 
   return (
