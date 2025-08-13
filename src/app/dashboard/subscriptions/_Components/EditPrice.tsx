@@ -4,7 +4,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import SubscriptionServices from "@/services/subscription/subscription";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const EditPrice = ({
   open,
@@ -19,8 +21,20 @@ const EditPrice = ({
 }) => {
   const [price, setPrice] = useState(currentPrice);
 
-  const handleSubmit = () => {
-    onSave(price);
+  const handleSubmit = async (data: number) => {
+    if (!data || isNaN(Number(data))) {
+      toast.error("Please enter a valid price.");
+    }
+
+    const res = await SubscriptionServices.updateSubscription("/subscription", {
+      price: Number(data),
+    });
+
+    if (!res.success) {
+      toast.error("Failed to update price. Please try again.");
+      return;
+    }
+    onSave(data.toString());
     onOpenChange(false);
   };
 
